@@ -1,0 +1,19 @@
+idf_component_register(
+        SRCS
+        "main.c"
+        "zeddy/zeddy_ble.c"
+        "zeddy/zeddy_nvs.c"
+        "zeddy/zeddy_networking.c"
+        "zeddy/zeddy_wifi.c"
+        "zeddy/zeddy_http_server.c"
+#        "zeddy/zeddy_ota.c"
+        "zeddy/zeddy_time.c"
+        "zeddy/zeddy_switch.c"
+        "zeddy/zeddy_relay.c"
+        "app/app_ble.c"
+        "app/app_state.c"
+        "app/app_rest_api.c"
+        "app/app_commands.c"
+        "zeddy/zeddy_dht22.c"
+        INCLUDE_DIRS
+        ".")

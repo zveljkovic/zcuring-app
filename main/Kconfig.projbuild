@@ -1,0 +1,20 @@
+menu "ZCuring Configuration"
+    config HUMIDITY_TEMPERATURE_GPIO
+            int "Humidity and temperature sensor GPIO"
+            default 0
+    config FRIDGE_GPIO
+            int "Fridge GPIO"
+            default 1
+    config HUMIDIFIER_GPIO
+            int "Humidifier GPIO"
+            default 2
+    config DEHUMIDIFIER_GPIO
+            int "Dehumidifier GPIO"
+            default 3
+    config DEFAULT_FRIDGE_POWER_ON_DELAY
+            int "Time period between two power on for fridge in seconds"
+            default 600
+    config CONTROL_CHECK_DELAY_MS
+            int "Time period between two control checks"
+            default 10000
+endmenu
