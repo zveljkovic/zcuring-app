@@ -41,18 +41,22 @@ void control_update() {
     app_state_set_last_humidity(humidity);
     time_t now = zeddy_time_get();
     control_point_t *cp = app_state_current_control_point(now);
-    if (temperature > cp->target_temperature + 1) {
+    if (temperature > cp->target_temperature + app_state_get_fridge_high_offset()) {
         app_state_set_fridge_relay_on();
-    } else if (temperature < cp->target_temperature - 1){
+    } else if (temperature < cp->target_temperature - app_state_get_fridge_low_offset()){
         app_state_set_fridge_relay_off();
     }
 
-    if (humidity > cp->target_humidity) {
+    if (humidity > cp->target_humidity + app_state_get_humidifier_high_offset()) {
         app_state_set_humidifier_relay_off();
-        app_state_set_dehumidifier_relay_on();
-    } else {
+    } else if (humidity > cp->target_humidity - app_state_get_humidifier_low_offset()) {
         app_state_set_humidifier_relay_on();
+    }
+
+    if (humidity > cp->target_humidity + app_state_get_dehumidifier_high_offset()) {
         app_state_set_dehumidifier_relay_off();
+    } else if (humidity > cp->target_humidity - app_state_get_dehumidifier_low_offset()) {
+        app_state_set_dehumidifier_relay_on();
     }
 
     char local_response_buffer[100] = {0};

@@ -8,37 +8,47 @@
 
 static const char *TAG = "ZCuringAppState";
 
-zeddy_relay_t *humidifier_relay = NULL;
-bool humidifier_relay_state = false;
-time_t last_humidifier_activation = 0;
-int humidifier_power_on_delay = CONFIG_DEFAULT_HUMIDIFIER_POWER_ON_DELAY;
-
-zeddy_relay_t *dehumidifier_relay = NULL;
-bool dehumidifier_relay_state = false;
-time_t last_dehumidifier_activation = 0;
-int dehumidifier_power_on_delay = CONFIG_DEFAULT_DEHUMIDIFIER_POWER_ON_DELAY;
-
-zeddy_relay_t *fridge_relay = NULL;
-bool fridge_relay_state = false;
-time_t last_fridge_activation = 0;
-int fridge_power_on_delay = CONFIG_DEFAULT_FRIDGE_POWER_ON_DELAY;
-
 esp_timer_handle_t control_timer_handle;
 
-control_point_t *control_points;
-int control_points_count = 0;
 
-double last_temperature = 0.f;
-double last_humidity = 0.f;
 bool reading_sensor = false;
-
 void app_state_set_reading_sensor(bool value) { reading_sensor = value; }
 bool app_state_get_reading_sensor() { return reading_sensor; }
+
+double fridge_high_offset = 1.0;
+void app_state_set_fridge_high_offset(double value) { fridge_high_offset = value; }
+double app_state_get_fridge_high_offset() { return fridge_high_offset; }
+
+double fridge_low_offset = 1.0;
+void app_state_set_fridge_low_offset(double value) { fridge_low_offset = value; }
+double app_state_get_fridge_low_offset() { return fridge_low_offset; }
+
+double humidifier_high_offset = 2.0;
+void app_state_set_humidifier_high_offset(double value) { humidifier_high_offset = value; }
+double app_state_get_humidifier_high_offset() { return humidifier_high_offset; }
+
+double humidifier_low_offset = 2.0;
+void app_state_set_humidifier_low_offset(double value) { humidifier_low_offset = value; }
+double app_state_get_humidifier_low_offset() { return humidifier_low_offset; }
+
+double dehumidifier_high_offset = 2.0;
+void app_state_set_dehumidifier_high_offset(double value) { dehumidifier_high_offset = value; }
+double app_state_get_dehumidifier_high_offset() { return dehumidifier_high_offset; }
+
+double dehumidifier_low_offset = 2.0;
+void app_state_set_dehumidifier_low_offset(double value) { dehumidifier_low_offset = value; }
+double app_state_get_dehumidifier_low_offset() { return dehumidifier_low_offset; }
+
+double last_temperature = 0.f;
 void app_state_set_last_temperature(double temperature) {last_temperature = temperature;}
 double app_state_get_last_temperature() { return last_temperature; }
+
+double last_humidity = 0.f;
 void app_state_set_last_humidity(double humidity) { last_humidity = humidity; }
 double app_state_get_last_humidity() { return last_humidity; }
 
+control_point_t *control_points;
+int control_points_count = 0;
 control_point_t* app_state_get_control_points() { return control_points; }
 int app_state_get_control_points_count() { return control_points_count; }
 void app_state_set_control_points(char *json) {
@@ -82,10 +92,15 @@ control_point_t *app_state_current_control_point(time_t now) {
     return &(cp[current_control_point_index]);
 }
 
+int dehumidifier_power_on_delay = CONFIG_DEFAULT_DEHUMIDIFIER_POWER_ON_DELAY;
 int app_state_get_dehumidifier_power_on_delay() { return dehumidifier_power_on_delay; }
 void app_state_set_dehumidifier_power_on_delay(int seconds) {
     dehumidifier_power_on_delay = seconds;
 }
+
+zeddy_relay_t *dehumidifier_relay = NULL;
+bool dehumidifier_relay_state = false;
+time_t last_dehumidifier_activation = 0;
 void app_state_set_dehumidifier_relay_on() {
     if (dehumidifier_relay_state) return;
     time_t now = zeddy_time_get();
@@ -109,10 +124,16 @@ void app_state_set_dehumidifier_relay_off() {
 bool app_state_get_dehumidifier_relay_state() { return dehumidifier_relay_state; }
 
 
+
+int humidifier_power_on_delay = CONFIG_DEFAULT_HUMIDIFIER_POWER_ON_DELAY;
 void app_state_set_humidifier_power_on_delay(int seconds) {
     humidifier_power_on_delay = seconds;
 }
 int app_state_get_humidifier_power_on_delay() { return humidifier_power_on_delay; }
+
+zeddy_relay_t *humidifier_relay = NULL;
+bool humidifier_relay_state = false;
+time_t last_humidifier_activation = 0;
 void app_state_set_humidifier_relay_on() {
     if (humidifier_relay_state) return;
     time_t now = zeddy_time_get();
@@ -136,10 +157,15 @@ void app_state_set_humidifier_relay_off() {
 bool app_state_get_humidifier_relay_state() { return humidifier_relay_state; }
 
 
+int fridge_power_on_delay = CONFIG_DEFAULT_FRIDGE_POWER_ON_DELAY;
 void app_state_set_fridge_power_on_delay(int seconds) {
     fridge_power_on_delay = seconds;
 }
 int app_state_get_fridge_power_on_delay() { return  fridge_power_on_delay; }
+
+zeddy_relay_t *fridge_relay = NULL;
+bool fridge_relay_state = false;
+time_t last_fridge_activation = 0;
 bool app_state_get_fridge_relay_state() { return fridge_relay_state; }
 void app_state_set_fridge_relay_on() {
     if (fridge_relay_state) return;

@@ -41,9 +41,21 @@ esp_err_t post_config_handler(httpd_req_t *req) {
     cJSON *fridge_power_on_delay = cJSON_GetObjectItem(root, "fridgePowerOnDelay");
     cJSON *humidifier_power_on_delay = cJSON_GetObjectItem(root, "humidifierPowerOnDelay");
     cJSON *dehumidifier_power_on_delay = cJSON_GetObjectItem(root, "dehumidifierPowerOnDelay");
+    cJSON *fridgeHighOffset = cJSON_GetObjectItem(root, "fridgeHighOffset");
+    cJSON *fridgeLowOffset = cJSON_GetObjectItem(root, "fridgeLowOffset");
+    cJSON *humidifierHighOffset = cJSON_GetObjectItem(root, "humidifierHighOffset");
+    cJSON *humidifierLowOffset = cJSON_GetObjectItem(root, "humidifierLowOffset");
+    cJSON *dehumidifierHighOffset = cJSON_GetObjectItem(root, "dehumidifierHighOffset");
+    cJSON *dehumidifierLowOffset = cJSON_GetObjectItem(root, "dehumidifierLowOffset");
     app_state_set_fridge_power_on_delay(fridge_power_on_delay->valueint);
     app_state_set_humidifier_power_on_delay(humidifier_power_on_delay->valueint);
     app_state_set_dehumidifier_power_on_delay(dehumidifier_power_on_delay->valueint);
+    app_state_set_fridge_high_offset(fridgeHighOffset->valuedouble);
+    app_state_set_fridge_low_offset(fridgeLowOffset->valuedouble);
+    app_state_set_humidifier_high_offset(humidifierHighOffset->valuedouble);
+    app_state_set_humidifier_low_offset(humidifierLowOffset->valuedouble);
+    app_state_set_dehumidifier_high_offset(dehumidifierHighOffset->valuedouble);
+    app_state_set_dehumidifier_low_offset(dehumidifierLowOffset->valuedouble);
     cJSON_Delete(root);
     const char resp[] = "{\"status\": \"ok\"}";
     httpd_resp_send(req, resp, HTTPD_RESP_USE_STRLEN);
@@ -56,6 +68,12 @@ esp_err_t get_config_handler(httpd_req_t *req) {
     cJSON_AddBoolToObject(root, "fridgePowerOnDelay", app_state_get_fridge_power_on_delay());
     cJSON_AddBoolToObject(root, "humidifierPowerOnDelay", app_state_get_humidifier_power_on_delay());
     cJSON_AddBoolToObject(root, "dehumidifierPowerOnDelay", app_state_get_dehumidifier_power_on_delay());
+    cJSON_AddNumberToObject(root, "fridgeHighOffset", app_state_get_fridge_high_offset());
+    cJSON_AddNumberToObject(root, "fridgeLowOffset", app_state_get_fridge_low_offset());
+    cJSON_AddNumberToObject(root, "humidifierHighOffset", app_state_get_humidifier_high_offset());
+    cJSON_AddNumberToObject(root, "humidifierLowOffset", app_state_get_humidifier_low_offset());
+    cJSON_AddNumberToObject(root, "dehumidifierHighOffset", app_state_get_dehumidifier_high_offset());
+    cJSON_AddNumberToObject(root, "dehumidifierLowOffset", app_state_get_dehumidifier_low_offset());
     char *json = cJSON_Print(root);
     cJSON_Delete(root);
     httpd_resp_send(req, json, HTTPD_RESP_USE_STRLEN);
@@ -114,6 +132,13 @@ void app_rest_api_init() {
             .handler  = post_config_handler
     };
     zeddy_http_server_register_uri_handler(&config_post);
+
+    httpd_uri_t config_get = {
+            .uri      = "/config",
+            .method   = HTTP_GET,
+            .handler  = get_config_handler
+    };
+    zeddy_http_server_register_uri_handler(&config_get);
 
     ESP_LOGI(TAG, "REST API Init done");
 }
