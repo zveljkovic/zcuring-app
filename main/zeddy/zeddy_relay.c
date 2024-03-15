@@ -5,7 +5,6 @@
 #define ZEDDY_RELAY_DEBOUNCE_TIMEOUT 150000
 #endif
 
-static const char *TAG = "ZeddyRelay";
 static gpio_config_t io_cfg;
 
 

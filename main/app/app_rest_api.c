@@ -39,10 +39,27 @@ esp_err_t post_config_handler(httpd_req_t *req) {
     if (ret <= 0) { return ESP_FAIL; }
     cJSON *root = cJSON_Parse(content);
     cJSON *fridge_power_on_delay = cJSON_GetObjectItem(root, "fridgePowerOnDelay");
+    cJSON *humidifier_power_on_delay = cJSON_GetObjectItem(root, "humidifierPowerOnDelay");
+    cJSON *dehumidifier_power_on_delay = cJSON_GetObjectItem(root, "dehumidifierPowerOnDelay");
     app_state_set_fridge_power_on_delay(fridge_power_on_delay->valueint);
+    app_state_set_humidifier_power_on_delay(humidifier_power_on_delay->valueint);
+    app_state_set_dehumidifier_power_on_delay(dehumidifier_power_on_delay->valueint);
     cJSON_Delete(root);
     const char resp[] = "{\"status\": \"ok\"}";
     httpd_resp_send(req, resp, HTTPD_RESP_USE_STRLEN);
+    return ESP_OK;
+}
+
+
+esp_err_t get_config_handler(httpd_req_t *req) {
+    cJSON *root = cJSON_CreateObject();
+    cJSON_AddBoolToObject(root, "fridgePowerOnDelay", app_state_get_fridge_power_on_delay());
+    cJSON_AddBoolToObject(root, "humidifierPowerOnDelay", app_state_get_humidifier_power_on_delay());
+    cJSON_AddBoolToObject(root, "dehumidifierPowerOnDelay", app_state_get_dehumidifier_power_on_delay());
+    char *json = cJSON_Print(root);
+    cJSON_Delete(root);
+    httpd_resp_send(req, json, HTTPD_RESP_USE_STRLEN);
+    free(json);
     return ESP_OK;
 }
 

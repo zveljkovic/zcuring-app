@@ -1,20 +1,35 @@
 menu "ZCuring Configuration"
-    config HUMIDITY_TEMPERATURE_GPIO
-            int "Humidity and temperature sensor GPIO"
-            default 0
+    config LCD_SDA
+            int "LCD SDA GPIO"
+            default 4
+    config LCD_SCL
+            int "LCD SCL GPIO"
+            default 5
     config FRIDGE_GPIO
             int "Fridge GPIO"
-            default 1
+            default 3
     config HUMIDIFIER_GPIO
             int "Humidifier GPIO"
-            default 2
+            default 0
     config DEHUMIDIFIER_GPIO
             int "Dehumidifier GPIO"
-            default 3
+            default 1
+    config HUMIDITY_TEMPERATURE_GPIO
+            int "Humidity and temperature sensor GPIO"
+            default 10
     config DEFAULT_FRIDGE_POWER_ON_DELAY
             int "Time period between two power on for fridge in seconds"
             default 600
-    config CONTROL_CHECK_DELAY_MS
-            int "Time period between two control checks"
-            default 10000
+    config DEFAULT_HUMIDIFIER_POWER_ON_DELAY
+            int "Time period between two power on for humidifier in seconds"
+            default 600
+    config DEFAULT_DEHUMIDIFIER_POWER_ON_DELAY
+            int "Time period between two power on for dehumidifier in seconds"
+            default 600
+    config CONTROL_CHECK_DELAY
+            int "Time period between two control checks in seconds"
+            default 60
+    config AUTH_TOKEN
+            string "Auth Token to send to zcuring service"
+
 endmenu

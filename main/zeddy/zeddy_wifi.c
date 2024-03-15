@@ -207,6 +207,12 @@ void zeddy_wifi_init_ble() {
 }
 bool zeddy_wifi_connected() { return connected; }
 
+bool zeddy_wifi_credentials_valid() {
+    char *tmp_password = zeddy_nvs_get_string(SSID_PASSWORD_NVS_KEY);
+    char *tmp_name = zeddy_nvs_get_string(SSID_NAME_NVS_KEY);
+    return strlen(tmp_name) > 0 && strlen(tmp_password) > 0;
+}
+
 void zeddy_wifi_init() {
     char *tmp_password = zeddy_nvs_get_string(SSID_PASSWORD_NVS_KEY);
     if (tmp_password) {

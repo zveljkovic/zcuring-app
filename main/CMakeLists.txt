@@ -14,6 +14,7 @@ idf_component_register(
         "app/app_state.c"
         "app/app_rest_api.c"
         "app/app_commands.c"
+        "app/app_lcd.c"
         "zeddy/zeddy_dht22.c"
         INCLUDE_DIRS
         ".")

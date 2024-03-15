@@ -9,7 +9,7 @@
 
 static const char *TAG = "ZCuringCommands";
 bool setup = false;
-
+bool z = false;
 esp_err_t read_sensor(double *temperature, double *humidity) {
     if (!setup) {
         setup = true;
@@ -23,37 +23,27 @@ esp_err_t read_sensor(double *temperature, double *humidity) {
     return ESP_OK;
 }
 
-control_point_t *current_control_point(time_t now) {
-    int cp_count = app_state_get_control_points_count();
-    control_point_t *cp = app_state_get_control_points();
-    int current_control_point_index = 0;
-    for (int i = 1; i < cp_count; i++) {
-        // current_control in past
-        if (difftime(now, cp[i].start_time) >= 0) {
-            current_control_point_index = i;
-        } else {
-            // if we encounter the start_time that is in future we break
-            break;
-        }
-    }
-    return &(cp[current_control_point_index]);
-}
+
 
 void control_update() {
     double humidity = 0;
     double temperature = 0;
 
+    app_state_set_reading_sensor(true);
     esp_err_t err = read_sensor(&temperature, &humidity);
+    app_state_set_reading_sensor(false);
     if (err != ESP_OK) {
         ESP_LOGW(TAG, "DHT22 returned error %s", esp_err_to_name(err));
         return;
     }
 
+    app_state_set_last_temperature(temperature);
+    app_state_set_last_humidity(humidity);
     time_t now = zeddy_time_get();
-    control_point_t *cp = current_control_point(now);
-    if (temperature > cp->target_temperature) {
+    control_point_t *cp = app_state_current_control_point(now);
+    if (temperature > cp->target_temperature + 1) {
         app_state_set_fridge_relay_on();
-    } else {
+    } else if (temperature < cp->target_temperature - 1){
         app_state_set_fridge_relay_off();
     }
 
@@ -65,7 +55,39 @@ void control_update() {
         app_state_set_dehumidifier_relay_off();
     }
 
-    vTaskDelay(pdMS_TO_TICKS(CONFIG_CONTROL_CHECK_DELAY_MS));
+    char local_response_buffer[100] = {0};
+    esp_http_client_config_t config = {
+            .url = "https://zcuring.zveljkovic.dev/stats",
+            .transport_type = HTTP_TRANSPORT_OVER_SSL,
+            .method = HTTP_METHOD_POST,
+            .user_data = local_response_buffer,        // Pass address of local buffer to get response
+            .disable_auto_redirect = true,
+            .skip_cert_common_name_check = true,
+    };
+    esp_http_client_handle_t client = esp_http_client_init(&config);
+
+    char post_data[999] = {0};
+
+    sprintf(post_data, "{"\
+        "\"currentTemperature\": %f, "\
+        "\"currentHumidity\": %f, "\
+        "\"targetTemperature\": %f, "\
+        "\"targetHumidity\": %f," \
+        "\"fridgeState\": %s," \
+        "\"humidifierState\": %s," \
+        "\"dehumidifierState\": %s" \
+        "}",
+        temperature, humidity, cp->target_temperature, cp->target_humidity,
+        app_state_get_fridge_relay_state() ? "true" : "false",
+        app_state_get_humidifier_relay_state() ? "true" : "false",
+        app_state_get_dehumidifier_relay_state() ? "true" : "false"
+    );
+
+    esp_http_client_set_header(client, "Content-Type", "application/json");
+    esp_http_client_set_header(client, "Authorization", CONFIG_AUTH_TOKEN);
+    esp_http_client_set_post_field(client, post_data, strlen(post_data));
+    esp_http_client_perform(client);
+    esp_http_client_cleanup(client);
 }
 
 //
