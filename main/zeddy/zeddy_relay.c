@@ -28,8 +28,8 @@ void zeddy_relay_register(zeddy_relay_t* relay) {
 
 
 void zeddy_relay_on(zeddy_relay_t* relay){
-    gpio_set_level(relay->gpio_number, relay->inverted ? 1 : 0);
+    gpio_set_level(relay->gpio_number, relay->inverted ? 0 : 1);
 }
 void zeddy_relay_off(zeddy_relay_t* relay){
-    gpio_set_level(relay->gpio_number, relay->inverted ? 0 : 1);
+    gpio_set_level(relay->gpio_number, relay->inverted ? 1 : 0);
 }

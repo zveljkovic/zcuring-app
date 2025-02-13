@@ -190,13 +190,13 @@ void app_state_set_fridge_relay_off() {
 }
 
 void app_state_init(esp_timer_cb_t timer_callback) {
-    fridge_relay = zeddy_relay_create(1, CONFIG_FRIDGE_GPIO, false);
+    fridge_relay = zeddy_relay_create(0, CONFIG_FRIDGE_GPIO,  true);
     zeddy_relay_register(fridge_relay);
 
-    humidifier_relay = zeddy_relay_create(1, CONFIG_HUMIDIFIER_GPIO, false);
+    humidifier_relay = zeddy_relay_create(0, CONFIG_HUMIDIFIER_GPIO, false);
     zeddy_relay_register(humidifier_relay);
 
-    dehumidifier_relay = zeddy_relay_create(1, CONFIG_DEHUMIDIFIER_GPIO, false);
+    dehumidifier_relay = zeddy_relay_create(0, CONFIG_DEHUMIDIFIER_GPIO, false);
     zeddy_relay_register(dehumidifier_relay);
 
     esp_timer_create_args_t create_args;

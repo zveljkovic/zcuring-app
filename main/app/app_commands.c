@@ -49,14 +49,14 @@ void control_update() {
 
     if (humidity > cp->target_humidity + app_state_get_humidifier_high_offset()) {
         app_state_set_humidifier_relay_off();
-    } else if (humidity > cp->target_humidity - app_state_get_humidifier_low_offset()) {
+    } else if (humidity < cp->target_humidity - app_state_get_humidifier_low_offset()) {
         app_state_set_humidifier_relay_on();
     }
 
     if (humidity > cp->target_humidity + app_state_get_dehumidifier_high_offset()) {
-        app_state_set_dehumidifier_relay_off();
-    } else if (humidity > cp->target_humidity - app_state_get_dehumidifier_low_offset()) {
         app_state_set_dehumidifier_relay_on();
+    } else if (humidity < cp->target_humidity - app_state_get_dehumidifier_low_offset()) {
+        app_state_set_dehumidifier_relay_off();
     }
 
     char local_response_buffer[100] = {0};

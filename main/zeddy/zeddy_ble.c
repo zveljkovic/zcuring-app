@@ -348,13 +348,13 @@ void zeddy_ble_init(const char *deviceName)
 //    nimble_port_init();
     ESP_ERROR_CHECK(nimble_port_init());
 
+    ESP_ERROR_CHECK(ble_svc_gap_device_name_set(deviceName));
+
     /* Initialize the NimBLE host configuration. */
     ble_hs_cfg.reset_cb = _reset_callback;
     ble_hs_cfg.sync_cb = _sync_callback;
     ble_hs_cfg.gatts_register_cb = gatt_svr_register_cb;
     ble_hs_cfg.store_status_cb = ble_store_util_status_rr;
-
-    ESP_ERROR_CHECK(ble_svc_gap_device_name_set(deviceName));
 }
 
 void zeddy_ble_gatt_init(const ble_gatt_svc_def *services)

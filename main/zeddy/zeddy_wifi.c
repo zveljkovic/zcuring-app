@@ -92,7 +92,7 @@ static int provisioning_ssid_name_cb(uint16_t conn_handle, uint16_t attr_handle,
         ble_gattc_notify_custom(conn_handle, ssid_name_handle, om);
         ESP_LOGI(TAG, "Provisioning SSID Name acknowledgement has been sent.");
         vTaskDelay(pdMS_TO_TICKS(500));
-        esp_restart();
+        // esp_restart();
         return rc;
     }
     // this shouldn't happen
@@ -122,7 +122,7 @@ static int provisioning_ssid_password_cb(uint16_t conn_handle, uint16_t attr_han
         ble_gattc_notify_custom(conn_handle, ssid_password_handle, om);
         ESP_LOGI(TAG, "Provisioning SSID Password acknowledgement has been sent.");
         vTaskDelay(pdMS_TO_TICKS(500));
-        esp_restart();
+        // esp_restart();
         return rc;
     }
     // this shouldn't happen

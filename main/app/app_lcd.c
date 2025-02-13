@@ -12,6 +12,7 @@
 #include <math.h>
 
 static const char *TAG = "ZLcd";
+static bool i2cdev_inited = false;
 
 static i2c_dev_t pcf8574;
 
@@ -112,15 +113,28 @@ void app_lcd_print(char *line1, char *line2) {
         vTaskDelete(task_handle);
         task_handle = NULL;
     }
-    hd44780_clear(&lcd);
-    hd44780_gotoxy(&lcd, 0, 0);
+    app_lcd_init();
+    esp_err_t err = ESP_OK;
+    err = hd44780_clear(&lcd);
+    if (err) {
+        ESP_LOGI("ZZZZ", "hd44780_clear");
+    }
+    err = hd44780_gotoxy(&lcd, 0, 0);
+    if (err) {
+        ESP_LOGI("ZZZZ", "hd44780_gotoxy 0, 0");
+    }
     hd44780_puts(&lcd, line1);
     hd44780_gotoxy(&lcd, 0, 1);
     hd44780_puts(&lcd, line2);
 }
 
 void app_lcd_init() {
+    if (i2cdev_inited) {
+        i2cdev_done();
+    }
     ESP_ERROR_CHECK(i2cdev_init());
+    i2cdev_inited = true;
+
     memset(&pcf8574, 0, sizeof(i2c_dev_t));
     pcf8574.port = 0;
     pcf8574.addr = 0x27;
@@ -135,5 +149,36 @@ void app_lcd_init() {
 
     hd44780_upload_character(&lcd, 0, up_sign);
     hd44780_upload_character(&lcd, 1, down_sign);
-
 }
+
+// void i2c_enumerate() {
+//    i2c_dev_t dev = { 0 };
+//    memset(&dev, 0, sizeof(i2c_dev_t));
+//    dev.port = 0;
+//    dev.cfg.sda_io_num = CONFIG_LCD_SDA;
+//    dev.cfg.scl_io_num = CONFIG_LCD_SCL;
+//    dev.cfg.master.clk_speed = 100000; // 100kHz
+//    esp_err_t res;
+//    gpio_set_pull_mode(CONFIG_LCD_SDA, GPIO_PULLUP_ONLY);
+//    gpio_set_pull_mode(CONFIG_LCD_SCL, GPIO_PULLUP_ONLY);
+//
+//    ESP_ERROR_CHECK(i2cdev_init());
+//    printf("     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f\n");
+//    printf("00:         ");
+//    for (uint8_t addr = 3; addr < 0x78; addr++)
+//    {
+//        if (addr % 16 == 0)
+//            printf("\n%.2x:", addr);
+//
+//        dev.addr = addr;
+//        res = i2c_dev_probe(&dev, I2C_DEV_WRITE);
+//
+//        if (res == 0)
+//            printf(" %.2x", addr);
+//        else
+//            printf(" --");
+//    }
+//    printf("\n\n");
+//    vTaskDelay(pdMS_TO_TICKS(6000));
+//    esp_system_abort("GG Bye");
+// }
